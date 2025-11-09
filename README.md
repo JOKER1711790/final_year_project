@@ -77,5 +77,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact 📧
 
-Your Name - youremail@example.com
+Your Name - sa.tarunkumar31@gmail.com
 Project Link: [https://github.com/JOKER1711790/final_year_project](https://github.com/JOKER1711790/final_year_project)
