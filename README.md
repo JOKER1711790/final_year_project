@@ -1,73 +1,81 @@
-# Welcome to your Lovable project
+# Cyber View Center 🖥️
 
-## Project info
+A modern web application for monitoring and managing cyber security incidents.
 
-**URL**: https://lovable.dev/projects/e478278d-6a0c-4906-9cff-a91e84436a33
+## Features ✨
 
-## How can I edit this code?
+- Real-time incident monitoring
+- Interactive dashboard
+- User authentication and authorization
+- Incident reporting and tracking
+- Analytics and visualization
+- Role-based access control
 
-There are several ways of editing your application.
+## Tech Stack 🛠️
 
-**Use Lovable**
+- Frontend: React.js
+- Backend: Node.js/Express
+- Database: MongoDB
+- Authentication: JWT
+- Styling: Tailwind CSS
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e478278d-6a0c-4906-9cff-a91e84436a33) and start prompting.
+## Getting Started 🚀
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v14 or higher)
+- MongoDB
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository:
 
-Follow these steps:
+```bash
+git clone https://github.com/yourusername/cyber-view-center.git
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Install dependencies:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+cd cyber-view-center
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Set up environment variables:
+   Create a `.env` file in the root directory and add:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```
+PORT=3000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
+
+4. Start the development server:
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Usage 📋
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Access the application at `http://localhost:3000`
+- Login with your credentials
+- Navigate through the dashboard to monitor and manage incidents
 
-**Use GitHub Codespaces**
+## Contributing 🤝
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## What technologies are used for this project?
+## License 📝
 
-This project is built with:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contact 📧
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/e478278d-6a0c-4906-9cff-a91e84436a33) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Your Name - youremail@example.com
+Project Link: [https://github.com/JOKER1711790/final_year_project](https://github.com/JOKER1711790/final_year_project)
