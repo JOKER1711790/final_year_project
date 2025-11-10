@@ -1,49 +1,10 @@
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Globe, Clock, Shield } from "lucide-react";
-
-const scans = [
-  {
-    id: 1,
-    name: "example.apk",
-    type: "file",
-    status: "completed",
-    threat: "critical",
-    time: "2 mins ago",
-  },
-  {
-    id: 2,
-    name: "https://example.com",
-    type: "url",
-    status: "scanning",
-    threat: null,
-    time: "5 mins ago",
-  },
-  {
-    id: 3,
-    name: "app-installer.exe",
-    type: "file",
-    status: "completed",
-    threat: "medium",
-    time: "12 mins ago",
-  },
-  {
-    id: 4,
-    name: "https://test-site.io",
-    type: "url",
-    status: "completed",
-    threat: "low",
-    time: "23 mins ago",
-  },
-  {
-    id: 5,
-    name: "package.zip",
-    type: "file",
-    status: "completed",
-    threat: "safe",
-    time: "1 hour ago",
-  },
-];
+import { FileText, Globe, Clock } from "lucide-react";
+import { Scan } from "@/types";
+import { useEffect, Dispatch, SetStateAction } from "react";
+import { api } from "@/utils/api";
 
 const getThreatBadge = (threat: string | null) => {
   if (!threat) return null;
@@ -65,7 +26,25 @@ const getThreatBadge = (threat: string | null) => {
   );
 };
 
-export const RecentScans = () => {
+interface RecentScansProps {
+  scans: Scan[];
+  setScans: Dispatch<SetStateAction<Scan[]>>;
+}
+
+export const RecentScans = ({ scans, setScans }: RecentScansProps) => {
+  useEffect(() => {
+    const fetchScans = async () => {
+      try {
+        const response = await api.get("/scans");
+        setScans(response.data.data);
+      } catch (error) {
+        console.error("Error fetching scans:", error);
+      }
+    };
+
+    fetchScans();
+  }, [setScans]);
+
   return (
     <Card className="gradient-card shadow-card border-border/50 p-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -76,7 +55,7 @@ export const RecentScans = () => {
       <div className="space-y-3">
         {scans.map((scan) => (
           <div
-            key={scan.id}
+            key={scan._id}
             className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-border/50 hover:border-primary/50 transition-colors"
           >
             <div className="flex items-center gap-3 flex-1">
@@ -89,7 +68,7 @@ export const RecentScans = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{scan.name}</p>
-                <p className="text-xs text-muted-foreground">{scan.time}</p>
+                <p className="text-xs text-muted-foreground">{new Date(scan.createdAt).toLocaleString()}</p>
               </div>
             </div>
 
@@ -100,7 +79,7 @@ export const RecentScans = () => {
                   <span className="text-xs text-primary font-medium">Scanning...</span>
                 </div>
               ) : (
-                getThreatBadge(scan.threat)
+                getThreatBadge(scan.threatLevel)
               )}
             </div>
           </div>

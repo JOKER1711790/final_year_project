@@ -11,6 +11,15 @@ A modern web application for monitoring and managing cyber security incidents.
 - Analytics and visualization
 - Role-based access control
 
+## Future Roadmap 🚀
+
+- **Backend API**: Implement REST API and WebSocket server
+- **Database**: Add PostgreSQL/MongoDB for persistence
+- **Authentication**: Implement JWT-based auth
+- **ML models**: Integrate actual ML models for AI analysis
+- **File storage**: Add S3 or similar for file uploads
+- **Monitoring**: Add logging and error tracking
+
 ## Tech Stack 🛠️
 
 - Frontend: React.js
