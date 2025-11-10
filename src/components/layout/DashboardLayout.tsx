@@ -17,7 +17,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   useEffect(() => {
     const fetchScans = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/scans');
+        const response = await fetch('http://localhost:3000/api/scans');
         const data = await response.json();
         if (data.success) {
           setScans(data.data);

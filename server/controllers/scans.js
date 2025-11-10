@@ -1,7 +1,7 @@
 
 const Scan = require('../models/Scan');
 const WebSocket = require('ws');
-const { spawn } = require('child_process');
+const axios = require('axios'); // Import axios
 
 // @desc    Get all scans
 // @route   GET /api/scans
@@ -40,10 +40,18 @@ exports.createScan = async (req, res, next) => {
       }
     });
 
-    const pythonProcess = spawn('python', ['server/ml/scanner.py', file_path]);
+    // Replace the Python script with an API call
+    try {
+      // Define the ML model API endpoint
+      const mlApiEndpoint = 'http://localhost:3000/api/ml/predict'; // Local ML model
 
-    pythonProcess.stdout.on('data', async (data) => {
-      const result = JSON.parse(data.toString());
+      // Make a POST request to the ML model API
+      const response = await axios.post(mlApiEndpoint, {
+        file_path: file_path
+      });
+
+      const result = response.data;
+
       const updatedScan = await Scan.findByIdAndUpdate(scan._id, {
         status: 'completed',
         threatLevel: result.threatLevel,
@@ -62,11 +70,12 @@ exports.createScan = async (req, res, next) => {
           }));
         }
       });
-    });
+    } catch (error) {
+        console.error('Error calling ML model API:', error.message);
+        // Optionally, update the scan to an 'error' state
+        await Scan.findByIdAndUpdate(scan._id, { status: 'error' });
+    }
 
-    pythonProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-    });
 
     res.status(201).json({ success: true, data: scan });
   } catch (error) {

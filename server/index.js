@@ -7,6 +7,7 @@ const WebSocket = require('ws');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const connectDB = require('./config/db');
 const auth = require('./middleware/auth');
+const { trainModel } = require('./ml-model');
 
 // Connect to database
 connectDB();
@@ -22,10 +23,12 @@ app.use(express.json());
 const testRouter = require('./routes/test');
 const scansRouter = require('./routes/scans');
 const authRouter = require('./routes/auth');
+const mlRouter = require('./routes/ml');
 
 app.use('/api/test', testRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/scans', auth, scansRouter);
+app.use('/api/ml', mlRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello from the backend server!');
@@ -46,6 +49,7 @@ wss.on('connection', (ws) => {
 
 app.set('wss', wss);
 
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`Server listening at http://localhost:${port}`);
+  await trainModel();
 });

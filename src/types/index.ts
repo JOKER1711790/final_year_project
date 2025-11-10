@@ -5,7 +5,8 @@ export interface Scan {
   type: 'file' | 'url';
   status: 'pending' | 'scanning' | 'completed' | 'failed';
   threatLevel: 'none' | 'low' | 'medium' | 'high' | 'critical';
-  threats: number;
+  threats: string[];
+  findings: string;
   createdAt: string;
   completedAt?: string;
   duration?: number;

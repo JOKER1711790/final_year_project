@@ -19,7 +19,7 @@ const getSeverityColor = (severity: string) => {
     case "critical":
       return "destructive";
     case "high":
-      return "default";
+      return "destructive";
     case "medium":
       return "secondary";
     case "low":
@@ -88,23 +88,31 @@ export default function ScanResults() {
                       {scan.threatLevel}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
-                      {scan.threats} threats found
+                      {scan.threats.length} threats found
                     </span>
                   </div>
                 </div>
               </div>
             </Card>
 
-            <Card className="gradient-card shadow-card border-border/50 p-12 text-center">
-              <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-amber-500" />
-              <h3 className="text-xl font-semibold mb-2">
-                Detailed Report Coming Soon
-              </h3>
-              <p className="text-muted-foreground">
-                The backend currently does not support detailed vulnerability reports.
-                This feature will be implemented in a future update.
-              </p>
+            <Card className="gradient-card shadow-card border-border/50 p-6">
+              <h3 className="text-xl font-semibold mb-2">Findings</h3>
+              <p className="text-muted-foreground">{scan.findings}</p>
             </Card>
+
+            {scan.threats.length > 0 && (
+              <Card className="gradient-card shadow-card border-border/50 p-6">
+                <h3 className="text-xl font-semibold mb-2">Threats</h3>
+                <ul className="space-y-2">
+                  {scan.threats.map((threat, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500" />
+                      <span>{threat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
           </div>
         );
       }}
