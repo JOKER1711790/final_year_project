@@ -246,6 +246,13 @@ export class ApiClient {
     });
   }
 
+  static async changePassword(passwordData: any): Promise<ApiResponse<any>> {
+    return this.request("/user/password", {
+      method: "PUT",
+      body: JSON.stringify(passwordData),
+    });
+  }
+
   // Analytics
   static async getAnalytics(params?: {
     startDate?: string;
@@ -334,4 +341,3 @@ export class LocalStorageApiClient {
     localStorage.setItem(this.WEBHOOKS_KEY, JSON.stringify(filtered));
   }
 }
-

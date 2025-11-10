@@ -1,17 +1,8 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, Bell, Key } from "lucide-react";
-
-const PlaceholderCard = ({ title, description }: { title: string; description: string }) => (
-    <Card className="gradient-card shadow-card border-border/50 p-6 mt-6">
-      <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>
-      <div className="flex items-center justify-center h-40 text-muted-foreground">
-        <p>{description}</p>
-      </div>
-    </Card>
-  );
+import { ProfileSettings, SecuritySettings, NotificationSettings, ApiSettings } from "@/components/settings";
 
 export default function Settings() {
   return (
@@ -43,31 +34,19 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="profile">
-            <PlaceholderCard
-              title="Profile Settings"
-              description="User profile management is not yet implemented."
-            />
+            <ProfileSettings />
           </TabsContent>
 
           <TabsContent value="security">
-            <PlaceholderCard
-              title="Security Settings"
-              description="Security settings are not yet implemented."
-            />
+            <SecuritySettings />
           </TabsContent>
 
           <TabsContent value="notifications">
-            <PlaceholderCard
-              title="Notification Settings"
-              description="Notification settings are not yet implemented."
-            />
+            <NotificationSettings />
           </TabsContent>
 
           <TabsContent value="api">
-            <PlaceholderCard
-              title="API Key Management"
-              description="API key management is not yet implemented."
-            />
+            <ApiSettings />
           </TabsContent>
         </Tabs>
       </div>
