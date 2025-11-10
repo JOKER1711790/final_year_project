@@ -12,6 +12,9 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Scan } from "@/types";
 
 const getSeverityColor = (severity: string) => {
@@ -45,77 +48,82 @@ const getTypeIcon = (type: string) => {
 export default function ScanResults() {
   const { scanId } = useParams<{ scanId: string }>();
   const navigate = useNavigate();
+  const [scan, setScan] = useState<Scan | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchScan = async () => {
+      if (!scanId) return;
+      try {
+        const docRef = doc(db, "scans", scanId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setScan({ _id: docSnap.id, ...docSnap.data() } as Scan);
+        } else {
+          console.log("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching document:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchScan();
+  }, [scanId]);
+
+  if (loading || !scan) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <p className="ml-4">Loading scan results...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      {({ scans }) => {
-        const scan: Scan | undefined = scans.find((s) => s._id === scanId);
-
-        if (!scan) {
-          return (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-8 h-8 animate-spin" />
-              <p className="ml-4">Loading scan results...</p>
-            </div>
-          );
-        }
-
-        return (
-          <div className="space-y-6 animate-fade-in">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/scan-history")}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to History
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  Scan Results
-                </h1>
-              </div>
-            </div>
-
-            <Card className="gradient-card shadow-card border-border/50 p-6">
-              <div className="flex items-center gap-4">
-                {getTypeIcon(scan.type)}
-                <div>
-                  <h2 className="text-xl font-semibold">{scan.name}</h2>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant={getSeverityColor(scan.threatLevel)}>
-                      {scan.threatLevel}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {scan.threats.length} threats found
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="gradient-card shadow-card border-border/50 p-6">
-              <h3 className="text-xl font-semibold mb-2">Findings</h3>
-              <p className="text-muted-foreground">{scan.findings}</p>
-            </Card>
-
-            {scan.threats.length > 0 && (
-              <Card className="gradient-card shadow-card border-border/50 p-6">
-                <h3 className="text-xl font-semibold mb-2">Threats</h3>
-                <ul className="space-y-2">
-                  {scan.threats.map((threat, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-500" />
-                      <span>{threat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            )}
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/scan-history")}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to History
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Scan Results
+            </h1>
           </div>
-        );
-      }}
+        </div>
+
+        <Card className="gradient-card shadow-card border-border/50 p-6">
+          <div className="flex items-center gap-4">
+            {getTypeIcon(scan.type)}
+            <div>
+              <h2 className="text-xl font-semibold">{scan.name}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant={getSeverityColor(scan.threatLevel)}>
+                  {scan.threatLevel}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {scan.threats} threats found
+                </span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="gradient-card shadow-card border-border/50 p-6">
+          <h3 className="text-xl font-semibold mb-2">Findings</h3>
+          <p className="text-muted-foreground">{scan.findings}</p>
+        </Card>
+      </div>
     </DashboardLayout>
   );
 }

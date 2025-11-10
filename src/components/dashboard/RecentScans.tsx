@@ -3,8 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Globe, Clock } from "lucide-react";
 import { Scan } from "@/types";
-import { useEffect, Dispatch, SetStateAction } from "react";
-import { api } from "@/utils/api";
 
 const getThreatBadge = (threat: string | null) => {
   if (!threat) return null;
@@ -28,23 +26,9 @@ const getThreatBadge = (threat: string | null) => {
 
 interface RecentScansProps {
   scans: Scan[];
-  setScans: Dispatch<SetStateAction<Scan[]>>;
 }
 
-export const RecentScans = ({ scans, setScans }: RecentScansProps) => {
-  useEffect(() => {
-    const fetchScans = async () => {
-      try {
-        const response = await api.get("/scans");
-        setScans(response.data.data);
-      } catch (error) {
-        console.error("Error fetching scans:", error);
-      }
-    };
-
-    fetchScans();
-  }, [setScans]);
-
+export const RecentScans = ({ scans }: RecentScansProps) => {
   return (
     <Card className="gradient-card shadow-card border-border/50 p-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">

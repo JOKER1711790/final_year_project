@@ -2,12 +2,13 @@
 export interface Scan {
   _id: string;
   name: string;
-  type: 'file' | 'url';
-  status: 'pending' | 'scanning' | 'completed' | 'failed';
+  type: 'file' | 'url' | 'api';
+  status: 'pending' | 'scanning' | 'completed' | 'failed' | 'queued';
   threatLevel: 'none' | 'low' | 'medium' | 'high' | 'critical';
-  threats: string[];
+  threats: number;
   findings: string;
   createdAt: string;
   completedAt?: string;
   duration?: number;
+  progress?: number; 
 }

@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Scan } from "@/types";
+import { Scan } from "@/types/index";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import {
   LineChart,
   Line,
@@ -21,6 +24,7 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 const processChartData = (scans: Scan[]) => {
@@ -63,116 +67,129 @@ const processChartData = (scans: Scan[]) => {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [scansSnapshot, loading] = useCollection(collection(db, "scans"));
+
+  const scans = useMemo(() => {
+    if (!scansSnapshot) return [];
+    return scansSnapshot.docs.map(doc => ({ _id: doc.id, findings: '', ...doc.data() } as Scan));
+  }, [scansSnapshot]);
+
+  const summaryStats = useMemo(() => {
+    return {
+      totalScans: scans.length,
+      threatsDetected: scans.filter((s) => s.threats > 0).length,
+      cleanFiles: scans.filter((s) => s.threats === 0).length,
+      pendingScans: scans.filter(
+        (s) => s.status === "pending" || s.status === "scanning"
+      ).length,
+    };
+  }, [scans]);
+
+  const chartData = useMemo(() => processChartData(scans), [scans]);
+  const recentScans = scans.slice(0, 5);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <p className="ml-4">Loading dashboard...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      {({ scans }) => {
-        const summaryStats = useMemo(() => {
-          return {
-            totalScans: scans.length,
-            threatsDetected: scans.filter((s) => s.threats > 0).length,
-            cleanFiles: scans.filter((s) => s.threats === 0).length,
-            pendingScans: scans.filter(
-              (s) => s.status === "pending" || s.status === "scanning"
-            ).length,
-          };
-        }, [scans]);
-
-        const chartData = useMemo(() => processChartData(scans), [scans]);
-        const recentScans = scans.slice(0, 5);
-
-        return (
-          <div className="space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Security Dashboard</h1>
-                <p className="text-muted-foreground">Monitor threats and manage your security scans</p>
+      <div className="space-y-6 animate-fade-in">
+        <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Security Dashboard</h1>
+            <p className="text-muted-foreground">Monitor threats and manage your security scans</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="gradient-card shadow-card border-border/50 p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Total Scans</p>
+              <ShieldCheck className="w-5 h-5 text-muted-foreground" />
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <Card className="gradient-card shadow-card border-border/50 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Total Scans</p>
-                  <ShieldCheck className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <p className="text-3xl font-bold mt-2">{summaryStats.totalScans}</p>
-              </Card>
-              <Card className="gradient-card shadow-card border-border/50 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Threats Detected</p>
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                </div>
-                <p className="text-3xl font-bold mt-2 text-destructive">{summaryStats.threatsDetected}</p>
-              </Card>
-              <Card className="gradient-card shadow-card border-border/50 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Clean Files</p>
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                </div>
-                <p className="text-3xl font-bold mt-2 text-green-500">{summaryStats.cleanFiles}</p>
-              </Card>
-              <Card className="gradient-card shadow-card border-border/50 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Pending Scans</p>
-                  <Clock className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <p className="text-3xl font-bold mt-2">{summaryStats.pendingScans}</p>
-              </Card>
+            <p className="text-3xl font-bold mt-2">{summaryStats.totalScans}</p>
+          </Card>
+          <Card className="gradient-card shadow-card border-border/50 p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Threats Detected</p>
+              <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
+            <p className="text-3xl font-bold mt-2 text-destructive">{summaryStats.threatsDetected}</p>
+          </Card>
+          <Card className="gradient-card shadow-card border-border/50 p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Clean Files</p>
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+            </div>
+            <p className="text-3xl font-bold mt-2 text-green-500">{summaryStats.cleanFiles}</p>
+          </Card>
+          <Card className="gradient-card shadow-card border-border/50 p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Pending Scans</p>
+              <Clock className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <p className="text-3xl font-bold mt-2">{summaryStats.pendingScans}</p>
+          </Card>
+        </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
-                <Card className="gradient-card shadow-card border-border/50 p-6 lg:col-span-2">
-                    <h3 className="text-lg font-semibold mb-4 text-foreground">Threat Detection Trends</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                        <YAxis stroke="hsl(var(--muted-foreground))" />
-                        <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                        <Legend />
-                        <Line type="monotone" dataKey="high" stroke="hsl(var(--destructive))" name="High/Critical" />
-                        <Line type="monotone" dataKey="medium" stroke="hsl(var(--chart-1))" name="Medium" />
-                        <Line type="monotone" dataKey="low" stroke="hsl(var(--chart-2))" name="Low" />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </Card>
-                <Card className="gradient-card shadow-card border-border/50 p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold">Recent Scans</h3>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate("/scan-history")}
-                        >
-                            View All
-                        </Button>
-                    </div>
-                    <div className="space-y-4">
-                        {recentScans.length > 0 ? (
-                            recentScans.map((scan) => (
-                            <div key={scan._id} className="flex items-center">
-                                <div className="flex-1">
-                                <p className="font-medium truncate">{scan.name}</p>
-                                <p className="text-sm text-muted-foreground">
-                                    {scan.threats} threats found
-                                </p>
-                                </div>
-                                <p className={`text-sm font-medium ml-4 ${
-                                    scan.threatLevel === 'critical' || scan.threatLevel === 'high' ? 'text-destructive' :
-                                    scan.threatLevel === 'medium' ? 'text-chart-1' : 'text-muted-foreground'
-                                }`}>{scan.threatLevel}</p>
+        <div className="grid gap-6 lg:grid-cols-3">
+            <Card className="gradient-card shadow-card border-border/50 p-6 lg:col-span-2">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Threat Detection Trends</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="high" stroke="hsl(var(--destructive))" name="High/Critical" />
+                    <Line type="monotone" dataKey="medium" stroke="hsl(var(--chart-1))" name="Medium" />
+                    <Line type="monotone" dataKey="low" stroke="hsl(var(--chart-2))" name="Low" />
+                    </LineChart>
+                </ResponsiveContainer>
+            </Card>
+            <Card className="gradient-card shadow-card border-border/50 p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Recent Scans</h3>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate("/scan-history")}
+                    >
+                        View All
+                    </Button>
+                </div>
+                <div className="space-y-4">
+                    {recentScans.length > 0 ? (
+                        recentScans.map((scan) => (
+                        <div key={scan._id} className="flex items-center">
+                            <div className="flex-1">
+                            <p className="font-medium truncate">{scan.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                                {scan.threats} threats found
+                            </p>
                             </div>
-                            ))
-                        ) : (
-                            <div className="text-center py-8 text-muted-foreground">
-                                <CheckCircle2 className="w-12 h-12 mx-auto mb-4" />
-                                <p>No recent scans found.</p>
-                            </div>
-                        )}
-                    </div>
-                </Card>
-            </div>
-          </div>
-        );
-      }}
+                            <p className={`text-sm font-medium ml-4 ${
+                                scan.threatLevel === 'critical' || scan.threatLevel === 'high' ? 'text-destructive' :
+                                scan.threatLevel === 'medium' ? 'text-chart-1' : 'text-muted-foreground'
+                            }`}>{scan.threatLevel}</p>
+                        </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                            <CheckCircle2 className="w-12 h-12 mx-auto mb-4" />
+                            <p>No recent scans found.</p>
+                        </div>
+                    )}
+                </div>
+            </Card>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

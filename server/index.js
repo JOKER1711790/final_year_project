@@ -15,8 +15,24 @@ connectDB();
 const app = express();
 const port = process.env.PORT || 3001;
 
+// CORS options
+const allowedOrigins = [
+  'https://9000-firebase-finalyearproject-1762767642812.cluster-yylgzpipxrar4v4a72liastuqy.cloudworkstations.dev',
+  'http://localhost:3000'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

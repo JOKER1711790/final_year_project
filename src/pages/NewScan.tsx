@@ -17,6 +17,8 @@ import {
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function NewScan() {
   const navigate = useNavigate();
@@ -58,12 +60,21 @@ export default function NewScan() {
   const createScan = async (name: string, type: 'url' | 'file' | 'api') => {
     setIsProcessing(true);
     try {
+      // Create a new document in Firestore
+      const docRef = await addDoc(collection(db, "scans"), {
+        name,
+        type,
+        status: "queued",
+        progress: 0,
+        createdAt: new Date(),
+      });
+
       const response = await fetch('http://localhost:3001/api/scans', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, type }),
+        body: JSON.stringify({ name, type, scanId: docRef.id }), // Pass the scanId to the backend
       });
 
       const data = await response.json();
@@ -87,7 +98,6 @@ export default function NewScan() {
 
   return (
     <DashboardLayout>
-      {() => (
         <div className="space-y-6 animate-fade-in">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">New Scan</h1>
@@ -234,7 +244,6 @@ export default function NewScan() {
             </Tabs>
           </Card>
         </div>
-      )}
     </DashboardLayout>
   );
 }
