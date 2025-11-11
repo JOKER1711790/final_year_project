@@ -1,13 +1,15 @@
 
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeProps } from "@/components/ui/badge";
 import { FileText, Globe, Clock } from "lucide-react";
 import { Scan } from "@/types";
 
 const getThreatBadge = (threat: string | null) => {
   if (!threat) return null;
 
-  const variants: Record<string, { variant: any; text: string }> = {
+  type BadgeVariant = BadgeProps["variant"];
+
+  const variants: Record<string, { variant: BadgeVariant; text: string }> = {
     critical: { variant: "destructive", text: "Critical" },
     high: { variant: "destructive", text: "High" },
     medium: { variant: "default", text: "Medium" },

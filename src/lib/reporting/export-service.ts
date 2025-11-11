@@ -3,9 +3,20 @@
  * Handles report generation and export in various formats
  */
 
-import { ScanResult } from "../scanner/scan-engine";
+import { ScanResult, Vulnerability, AISuggestion } from "../scanner/scan-engine";
 
 export type ExportFormat = "pdf" | "json" | "csv" | "html";
+
+export interface ReportSummary {
+    totalVulnerabilities: number;
+    severityDistribution: {
+        critical: number;
+        high: number;
+        medium: number;
+        low: number;
+    };
+    duration: number;
+}
 
 export interface ReportData {
   scanId: string;
@@ -14,9 +25,9 @@ export interface ReportData {
   timestamp: Date;
   riskScore: number;
   severity: string;
-  vulnerabilities: any[];
-  summary: any;
-  recommendations?: any[];
+  vulnerabilities: Vulnerability[];
+  summary: ReportSummary;
+  recommendations?: AISuggestion[];
 }
 
 export class ExportService {

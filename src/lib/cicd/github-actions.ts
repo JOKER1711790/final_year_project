@@ -59,13 +59,13 @@ jobs:
         if: steps.scan.outcome == 'failure'
         run: |
           curl -X POST ${config.webhookUrl || '${{ secrets.WEBHOOK_URL }}'} \\
-            -H "Content-Type: application/json" \\
-            -d '{"event": "critical_vulnerability", "repository": "${{ github.repository }}", "commit": "${{ github.sha }}"}'` : ""}
+            -H 'Content-Type: application/json' \\
+            -d '{"event": "critical_vulnerability", "repository": "\${{ github.repository }}", "commit": "\${{ github.sha }}"}'` : ''}
 
       ${config.scanOnFailure ? `- name: Deep scan on failure
         if: failure()
         run: |
-          npx @securecheck/cli scan --target . --type file --deep --format json --output deep-scan-results.json` : ""}
+          npx @securecheck/cli scan --target . --type file --deep --format json --output deep-scan-results.json` : ''}
 `;
   }
 
@@ -79,8 +79,7 @@ jobs:
   /**
    * Get GitHub Actions badge URL
    */
-  static getBadgeUrl(owner: string, repo: string, workflow: string = "security-scan"): string {
+  static getBadgeUrl(owner: string, repo: string, workflow = "security-scan"): string {
     return `https://github.com/${owner}/${repo}/actions/workflows/${workflow}.yml/badge.svg`;
   }
 }
-

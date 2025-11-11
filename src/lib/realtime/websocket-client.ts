@@ -13,9 +13,34 @@ export type WebSocketEvent =
   | "alert_created"
   | "vulnerability_detected";
 
+export interface ScanProgressData {
+  scanId: string;
+  progress: number;
+  status: string;
+}
+
+export type ScanCompletionData = ScanResult;
+
+export interface ScanFailureData {
+  scanId: string;
+  error: string;
+}
+
+export interface AlertCreationData {
+  alertId: string;
+  message: string;
+  severity: "critical" | "high" | "medium" | "low";
+}
+
+export interface VulnerabilityData {
+  vulnerabilityId: string;
+  description: string;
+  severity: "critical" | "high" | "medium" | "low";
+}
+
 export interface WebSocketMessage {
   event: WebSocketEvent;
-  data: any;
+  data: ScanProgressData | ScanCompletionData | ScanFailureData | AlertCreationData | VulnerabilityData;
   timestamp: Date;
 }
 
@@ -124,7 +149,7 @@ export class WebSocketClient {
   /**
    * Send message to server
    */
-  send(event: WebSocketEvent, data: any) {
+  send(event: WebSocketEvent, data: WebSocketMessage["data"]) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(
         JSON.stringify({
@@ -191,4 +216,3 @@ export const getWebSocketClient = (): WebSocketClient => {
   }
   return wsClientInstance;
 };
-

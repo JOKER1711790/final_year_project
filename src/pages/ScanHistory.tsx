@@ -352,7 +352,7 @@ export default function ScanHistory() {
                   <p className="text-muted-foreground mb-4">
                     {hasActiveFilters
                       ? "No scans match your current filters. Try adjusting your search criteria."
-                      : "You haven\'t performed any scans yet. Start by uploading a file or scanning a URL."}
+                      : "You haven't performed any scans yet. Start by uploading a file or scanning a URL."}
                   </p>
                   {hasActiveFilters && (
                     <Button

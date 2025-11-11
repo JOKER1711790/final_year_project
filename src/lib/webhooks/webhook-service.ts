@@ -25,10 +25,19 @@ export type WebhookEvent =
   | "critical_vulnerability"
   | "scan_scheduled";
 
-export interface WebhookPayload {
-  event: WebhookEvent;
+export interface WebhookPayloadData {
+  scan_started: { scanId: string; target: string; type: string };
+  scan_completed: ScanResult;
+  scan_failed: { scanId: string; error: string };
+  vulnerability_detected: { scanId: string; vulnerabilityId: string };
+  critical_vulnerability: { scanId: string; vulnerabilityId: string };
+  scan_scheduled: { scheduleId: string; target: string; cron: string };
+}
+
+export interface WebhookPayload<T extends WebhookEvent> {
+  event: T;
   timestamp: string;
-  data: any;
+  data: WebhookPayloadData[T];
   scanId?: string;
 }
 
@@ -119,7 +128,10 @@ export class WebhookService {
   /**
    * Trigger webhooks for an event
    */
-  static async triggerWebhooks(event: WebhookEvent, data: any) {
+  static async triggerWebhooks<T extends WebhookEvent>(
+    event: T,
+    data: WebhookPayloadData[T]
+  ) {
     const webhooksToTrigger = Array.from(this.webhooks.values()).filter(
       (webhook) => webhook.enabled && webhook.events.includes(event)
     );
@@ -128,11 +140,11 @@ export class WebhookService {
       return;
     }
 
-    const payload: WebhookPayload = {
+    const payload: WebhookPayload<T> = {
       event,
       timestamp: new Date().toISOString(),
       data,
-      scanId: data.scanId || data.result?.id,
+      scanId: (data as { scanId?: string }).scanId,
     };
 
     // Trigger all matching webhooks in parallel
@@ -144,7 +156,10 @@ export class WebhookService {
   /**
    * Send webhook request
    */
-  private static async sendWebhook(webhook: Webhook, payload: WebhookPayload) {
+  private static async sendWebhook<T extends WebhookEvent>(
+    webhook: Webhook,
+    payload: WebhookPayload<T>
+  ) {
     try {
       // Create signature if secret is provided
       const headers: HeadersInit = {
@@ -206,12 +221,13 @@ export class WebhookService {
       return false;
     }
 
-    const testPayload: WebhookPayload = {
+    const testPayload: WebhookPayload<"scan_started"> = {
       event: "scan_started",
       timestamp: new Date().toISOString(),
       data: {
-        test: true,
-        message: "This is a test webhook",
+        scanId: "test-scan",
+        target: "test-target",
+        type: "test",
       },
     };
 
@@ -224,4 +240,3 @@ export class WebhookService {
     }
   }
 }
-

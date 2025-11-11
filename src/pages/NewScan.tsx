@@ -20,11 +20,13 @@ import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+type ScanType = "url" | "api" | "file";
+
 export default function NewScan() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeTab, setActiveTab] = useState<"url" | "api" | "file">("url");
+  const [activeTab, setActiveTab] = useState<ScanType>("url");
   const [url, setUrl] = useState("");
   const [apiEndpoint, setApiEndpoint] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -57,7 +59,7 @@ export default function NewScan() {
     }
   }, []);
 
-  const createScan = async (name: string, type: 'url' | 'file' | 'api') => {
+  const createScan = async (name: string, type: ScanType) => {
     setIsProcessing(true);
     try {
       // Create a new document in Firestore
@@ -108,7 +110,7 @@ export default function NewScan() {
           <Card className="gradient-card shadow-card border-border/50 p-6">
             <Tabs
               value={activeTab}
-              onValueChange={(value) => setActiveTab(value as any)}
+              onValueChange={(value) => setActiveTab(value as ScanType)}
               className="w-full"
             >
               <TabsList className="grid w-full grid-cols-3 mb-6">

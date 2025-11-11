@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner-toast";
 import { 
   validateUrl, 
   validateApiEndpoint, 
@@ -29,16 +29,7 @@ export const UploadSection = () => {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileUpload(files);
-    }
-  }, []);
-
-  const handleFileUpload = async (files: File[]) => {
+  const handleFileUpload = useCallback(async (files: File[]) => {
     if (isProcessing) return;
     
     const file = files[0];
@@ -76,7 +67,16 @@ export const UploadSection = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [isProcessing]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  }, [handleFileUpload]);
 
   const handleUrlScan = () => {
     if (isProcessing) return;
